@@ -72,6 +72,7 @@ export default function InfantDetails() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["infant", id] });
       queryClient.invalidateQueries({ queryKey: ["infants"] });
+      alert("Notification Sent....");
     },
     onError: (err) => {
       console.error("Notification mutation failed:", err);
