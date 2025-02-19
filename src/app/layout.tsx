@@ -31,13 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Suspense>
-          <AuthContextProvider>
-            <ProtectedRoutesContextProvider>
-              <TanStackProvider>{children}</TanStackProvider>
-            </ProtectedRoutesContextProvider>
-          </AuthContextProvider>
-        </Suspense>
+        <AuthContextProvider>
+          <ProtectedRoutesContextProvider>
+            <TanStackProvider>
+              <Suspense>{children}</Suspense>
+            </TanStackProvider>
+          </ProtectedRoutesContextProvider>
+        </AuthContextProvider>
       </body>
     </html>
   );
