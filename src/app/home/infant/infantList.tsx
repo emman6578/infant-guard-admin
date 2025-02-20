@@ -84,14 +84,8 @@ const InfantList = () => {
   }, [searchTerm, selectedPurok, selectedBaranggay, selectedGender]);
 
   // Compute unique dropdown values from data for filtering
-  const uniquePuroks = React.useMemo(() => {
-    if (!data?.data) return [];
-    const puroks = data.data
-      .map((infant: any) => infant.address?.purok)
-      .filter(Boolean);
-    return [...new Set(puroks)];
-  }, [data?.data]);
 
+  // Unique Baranggays (no change here)
   const uniqueBaranggays = React.useMemo(() => {
     if (!data?.data) return [];
     const baranggays = data.data
@@ -99,6 +93,21 @@ const InfantList = () => {
       .filter(Boolean);
     return [...new Set(baranggays)];
   }, [data?.data]);
+
+  // Unique Puroks: now only show puroks associated with the selected baranggay (if not "All")
+  const uniquePuroks = React.useMemo(() => {
+    if (!data?.data) return [];
+    let filteredData = data.data;
+    if (selectedBaranggay !== "All") {
+      filteredData = data.data.filter(
+        (infant: any) => infant.address?.baranggay === selectedBaranggay
+      );
+    }
+    const puroks = filteredData
+      .map((infant: any) => infant.address?.purok)
+      .filter(Boolean);
+    return [...new Set(puroks)];
+  }, [data?.data, selectedBaranggay]);
 
   const uniqueGenders = React.useMemo(() => {
     if (!data?.data) return [];
@@ -213,20 +222,7 @@ const InfantList = () => {
             className="border rounded-md p-1 text-sm"
             placeholder="Search by fullname"
           />
-          {/* Filter by Purok */}
-          <select
-            value={selectedPurok}
-            onChange={(e) => setSelectedPurok(e.target.value)}
-            className="border rounded-md p-1 text-sm"
-          >
-            <option value="All">All Puroks</option>
-            {uniquePuroks.map((purok: string) => (
-              <option key={purok} value={purok}>
-                {purok}
-              </option>
-            ))}
-          </select>
-          {/* Filter by Baranggay */}
+          {/* Filter by Baranggay (moved first) */}
           <select
             value={selectedBaranggay}
             onChange={(e) => setSelectedBaranggay(e.target.value)}
@@ -236,6 +232,19 @@ const InfantList = () => {
             {uniqueBaranggays.map((baranggay: string) => (
               <option key={baranggay} value={baranggay}>
                 {baranggay}
+              </option>
+            ))}
+          </select>
+          {/* Filter by Purok (moved second) */}
+          <select
+            value={selectedPurok}
+            onChange={(e) => setSelectedPurok(e.target.value)}
+            className="border rounded-md p-1 text-sm"
+          >
+            <option value="All">All Puroks</option>
+            {uniquePuroks.map((purok: string) => (
+              <option key={purok} value={purok}>
+                {purok}
               </option>
             ))}
           </select>
