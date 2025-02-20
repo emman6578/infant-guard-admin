@@ -4,22 +4,28 @@ import React from "react";
 import Footer from "@/components/footer";
 import Sidebar from "@/components/sidebar";
 import InfantList from "./infantList";
-
 import AddInfantModal from "./addInfantModal";
-
-//TODO: Dashboard infant coverage can be sorted by baranggay
-//infant search bar, filter by purok,baranggay , gender
 
 const InfantManagement = () => {
   return (
-    <div className="grid grid-cols-[250px_1fr] grid-rows-[1fr_auto] min-h-screen">
-      <Sidebar />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Container for Sidebar and Main Content */}
+      <div className="flex flex-1 flex-col md:flex-row">
+        {/* Sidebar becomes full width on mobile and fixed on larger screens */}
+        <aside className="w-full md:w-64 bg-white shadow">
+          <Sidebar />
+        </aside>
 
-      <main className="p-8 sm:p-20 font-[family-name:var(--font-geist-sans)] flex flex-col h-[calc(100vh-4rem)] space-y-8 relative">
-        <AddInfantModal />
-        <InfantList />
-      </main>
+        {/* Main Content Area */}
+        <main className="flex-1 p-4 sm:p-8 font-[family-name:var(--font-geist-sans)]">
+          <div className="max-w-6xl mx-auto space-y-8">
+            <AddInfantModal />
+            <InfantList />
+          </div>
+        </main>
+      </div>
 
+      {/* Footer remains at the bottom */}
       <Footer />
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Footer from "@/components/footer";
 import Sidebar from "@/components/sidebar";
 import { useProtectedRoutesApi } from "@/libraries/API/ProtectedRoute/secureRoutes";
@@ -22,7 +22,18 @@ export default function InfantDetails() {
     updateVaccineStatus,
     getPushToken,
     updatVaccineSchedDate,
+    CreateVaccineProgress,
+    CreateVaccineSchedule,
   } = useProtectedRoutesApi();
+
+  const onMountCreateSchedAndProgress = async (id: any) => {
+    await CreateVaccineProgress(id!);
+    await CreateVaccineSchedule(id!);
+  };
+
+  useEffect(() => {
+    onMountCreateSchedAndProgress(id);
+  }, [id]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["infant", id],

@@ -511,10 +511,7 @@ export const ProtectedRoutesContextProvider = ({
       }
 
       return await res.json();
-    } catch (error) {
-      console.error("Error Creating Vaccine Schedule:", error);
-      throw error;
-    }
+    } catch (error) {}
   };
 
   const CreateVaccineProgress = async (id: string) => {

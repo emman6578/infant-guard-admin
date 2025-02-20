@@ -1,12 +1,28 @@
-// PredictiveAnalysis.tsx
 import React from "react";
 
 type InfantData = {
   fullname: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Vaccination_Schedule: any[];
   // … add more types as needed
 };
+
+function getDoseCompliance(
+  scheduledDateStr: string,
+  updatedDateStr: string
+): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const scheduledDate = new Date(scheduledDateStr);
+  const updatedDate = new Date(updatedDateStr);
+  const diffDays =
+    Math.abs(updatedDate.getTime() - scheduledDate.getTime()) / msPerDay;
+
+  if (diffDays === 0) return 100;
+  if (diffDays <= 3) return 95;
+  if (diffDays <= 7) return 90;
+  if (diffDays <= 14) return 80;
+  if (diffDays <= 30) return 70;
+  return 50;
+}
 
 export default function PredictiveAnalysis({
   infantData,
@@ -24,19 +40,18 @@ export default function PredictiveAnalysis({
   }
 
   // ------------------------------
-  // 1. Compliance Analysis Variables
+  // 1. Recalculate Compliance Using Updated Dose Dates
   // ------------------------------
-  const compliances: number[] = [];
+  const recalculatedCompliances: number[] = [];
   let highComplianceCount = 0;
   let moderateComplianceCount = 0;
   let lowComplianceCount = 0;
 
   // ------------------------------
-  // 2. Timeliness Score Variables
+  // 2. Timeliness Score Variables (retain existing logic for now)
   // ------------------------------
   let totalTimelinessScore = 0;
   let timelinessRemarkCount = 0;
-  // helper function to score the remarks
   const scoreRemark = (remark: string | null): number => {
     if (remark === "ON_TIME") return 1;
     if (remark === "EARLY") return -0.5;
@@ -50,24 +65,42 @@ export default function PredictiveAnalysis({
   let totalExpectedDoses = 0;
   let totalCompletedDoses = 0;
 
-  // Loop over each schedule
   schedules.forEach((schedule) => {
-    // Get the compliance percentage from the first Vaccination record (if available)
-    const vaccinationRecord = schedule.Vaccination?.[0];
-    const compliance = vaccinationRecord?.percentage;
-    if (typeof compliance === "number") {
-      compliances.push(compliance);
-      if (compliance >= 80) {
-        highComplianceCount++;
-      } else if (compliance >= 50) {
-        moderateComplianceCount++;
-      } else {
-        lowComplianceCount++;
-      }
+    // Calculate compliance for each expected dose using scheduled and updated dates.
+    // We assume if a scheduled date exists, then an updated date should be compared.
+    const doseScores: number[] = [];
+    if (schedule.firstDose && schedule.UpdateFirstDose) {
+      doseScores.push(
+        getDoseCompliance(schedule.firstDose, schedule.UpdateFirstDose)
+      );
+    }
+    if (schedule.secondDose && schedule.UpdateSecondDose) {
+      doseScores.push(
+        getDoseCompliance(schedule.secondDose, schedule.UpdateSecondDose)
+      );
+    }
+    if (schedule.thirdDose && schedule.UpdateThirdDose) {
+      doseScores.push(
+        getDoseCompliance(schedule.thirdDose, schedule.UpdateThirdDose)
+      );
+    }
+    // Average the score for the schedule
+    const scheduleCompliance =
+      doseScores.length > 0
+        ? doseScores.reduce((a, b) => a + b, 0) / doseScores.length
+        : 0;
+    recalculatedCompliances.push(scheduleCompliance);
+
+    // Count compliance categories
+    if (scheduleCompliance >= 80) {
+      highComplianceCount++;
+    } else if (scheduleCompliance >= 50) {
+      moderateComplianceCount++;
+    } else {
+      lowComplianceCount++;
     }
 
-    // Calculate timeliness score using the remarks on each dose from the schedule itself
-    // (if a remark is missing, we ignore it)
+    // Process timeliness remarks (if available)
     ["remark_FirstDose", "remark_SecondDose", "remark_ThirdDose"].forEach(
       (key) => {
         const remark = schedule[key];
@@ -78,50 +111,43 @@ export default function PredictiveAnalysis({
       }
     );
 
-    // Calculate expected doses based on the vaccine's frequency.
-    // (Assuming the first vaccine name object contains a 'frequency' property)
+    // Expected doses based on vaccine frequency from the first vaccine_names object
     const expectedDoses = Number(schedule.vaccine_names?.[0]?.frequency) || 0;
     totalExpectedDoses += expectedDoses;
 
-    // Calculate completed doses by checking each dose status in the vaccination record.
+    // Calculate completed doses using the Vaccination record
     let completed = 0;
+    const vaccinationRecord = schedule.Vaccination?.[0];
     if (vaccinationRecord) {
-      // Only count the doses that exist; sometimes a vaccine may only require 1 or 2 doses.
-      if (
-        schedule.vaccine_names?.[0]?.frequency >= 1 &&
-        vaccinationRecord.firstDoseStatus === "DONE"
-      ) {
+      if (expectedDoses >= 1 && vaccinationRecord.firstDoseStatus === "DONE") {
         completed++;
       }
-      if (
-        schedule.vaccine_names?.[0]?.frequency >= 2 &&
-        vaccinationRecord.secondDoseStatus === "DONE"
-      ) {
+      if (expectedDoses >= 2 && vaccinationRecord.secondDoseStatus === "DONE") {
         completed++;
       }
-      if (
-        schedule.vaccine_names?.[0]?.frequency >= 3 &&
-        vaccinationRecord.thirdDoseStatus === "DONE"
-      ) {
+      if (expectedDoses >= 3 && vaccinationRecord.thirdDoseStatus === "DONE") {
         completed++;
       }
     }
     totalCompletedDoses += completed;
   });
 
-  // Compute average compliance
-  const totalCompliance = compliances.reduce((acc, curr) => acc + curr, 0);
-  const averageCompliance = totalCompliance / compliances.length;
+  // Compute overall average recalculated compliance
+  const totalCompliance = recalculatedCompliances.reduce(
+    (acc, curr) => acc + curr,
+    0
+  );
+  const averageCompliance = totalCompliance / recalculatedCompliances.length;
 
   // Compute standard deviation for compliance percentages
   const variance =
-    compliances.reduce(
+    recalculatedCompliances.reduce(
       (acc, curr) => acc + Math.pow(curr - averageCompliance, 2),
       0
-    ) / compliances.length;
+    ) / recalculatedCompliances.length;
   const stdDeviation = Math.sqrt(variance);
 
-  // Compute average timeliness score (if there are any remarks)
+  // Compute average timeliness score
   const averageTimelinessScore =
     timelinessRemarkCount > 0
       ? totalTimelinessScore / timelinessRemarkCount
@@ -138,7 +164,6 @@ export default function PredictiveAnalysis({
   // ------------------------------
   let predictedOutcome = "";
 
-  // For example, we might combine our variables into a prediction:
   if (averageCompliance >= 90 && vaccinationCompletionRate === 100) {
     predictedOutcome =
       "Excellent: The infant has maintained exceptional compliance with all vaccinations. Every dose has been completed on time with a perfect vaccination completion rate.";
@@ -160,7 +185,6 @@ export default function PredictiveAnalysis({
       "Low: The vaccination compliance is poor. A significant number of doses are either incomplete or delayed, indicating that immediate intervention is required.";
   }
 
-  // Adjust the outcome based on the variability of compliance and timeliness
   if (stdDeviation > 20) {
     predictedOutcome +=
       " However, there is significant variability in the compliance percentages, which may indicate inconsistencies between different vaccines.";
