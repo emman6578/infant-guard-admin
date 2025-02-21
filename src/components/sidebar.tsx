@@ -4,7 +4,11 @@ import React from "react";
 import LogoutBtn from "./logoutBtn";
 import { usePathname, useRouter } from "next/navigation";
 
-const Sidebar = () => {
+interface SidebarProps {
+  unreadCount?: number;
+}
+
+const Sidebar = ({ unreadCount }: SidebarProps) => {
   const router = useRouter();
   const currentPath = usePathname();
 
@@ -56,12 +60,15 @@ const Sidebar = () => {
         </button>
 
         <button
-          onClick={() => handleTabClick("/home/about")}
+          onClick={() => handleTabClick("/home/messages")}
           className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/about" ? "bg-gray-800 text-blue-400" : ""
+            currentPath === "/home/messages" ? "bg-gray-800 text-blue-400" : ""
           }`}
         >
-          Download Vaccine Form
+          Messages{" "}
+          <span className="bg-red-500 text-white text-sm rounded-full px-2 ml-2">
+            {unreadCount}
+          </span>
         </button>
 
         <button

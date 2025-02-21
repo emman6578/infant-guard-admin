@@ -57,6 +57,16 @@ interface ProtectedRoutesType {
   infantDataDownload: () => Promise<unknown>;
   UploadDocumentToInfant: (id: string, pdfUri: File) => Promise<unknown>;
   downloadInfantVaccineProgress: (id: string) => Promise<unknown>;
+  createMsg: (text: string, targetParentId: string) => Promise<unknown>;
+  readMsg: (conversationId: string) => Promise<unknown>;
+  loadConversation: () => Promise<unknown>;
+  unreadCount: () => Promise<unknown>;
+  pushTokenMessage: (
+    id: string,
+    title: string,
+    body: string,
+    data: string
+  ) => Promise<unknown>;
 }
 
 const ProtectedRoutesContext = createContext<ProtectedRoutesType | undefined>(
@@ -624,6 +634,136 @@ export const ProtectedRoutesContextProvider = ({
     return await res.json();
   };
 
+  //===================================================================================
+  const createMsg = async (text: string, targetParentId: string) => {
+    const data = {
+      text,
+      targetParentId,
+    };
+
+    const res = await fetch(`${API_URL}/msg`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Failed to send text";
+      const responseBody = await res.json();
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
+  const readMsg = async (conversationId: string) => {
+    const res = await fetch(`${API_URL}/msg/${conversationId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Failed to read message";
+      const responseBody = await res.json();
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
+  const loadConversation = async () => {
+    const res = await fetch(`${API_URL}/msg`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Failed to read message";
+      const responseBody = await res.json();
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
+  const unreadCount = async () => {
+    const res = await fetch(`${API_URL}/msg/unreadCount`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Failed to laod unread counts";
+      const responseBody = await res.json();
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
+  const pushTokenMessage = async (
+    id: string,
+    title: string,
+    body: string,
+    data: string
+  ) => {
+    const payload = {
+      title: title,
+      body: body,
+      data: {
+        received: data,
+      },
+    };
+
+    const res = await fetch(`${API_URL}/msg/pushTokenAdmin/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      // Check if response is not OK (status code not in range 200-299)
+      let errorMessage = "Failed to get infant push token";
+      const responseBody = await res.json(); // Attempt to parse response body as JSON
+
+      // Check if response body has an error message from the backend
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
   return (
     <ProtectedRoutesContext.Provider
       value={{
@@ -646,6 +786,11 @@ export const ProtectedRoutesContextProvider = ({
         infantDataDownload,
         UploadDocumentToInfant,
         downloadInfantVaccineProgress,
+        createMsg,
+        readMsg,
+        loadConversation,
+        unreadCount,
+        pushTokenMessage,
       }}
     >
       {children}
