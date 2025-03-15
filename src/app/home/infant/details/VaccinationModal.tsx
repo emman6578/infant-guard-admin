@@ -174,7 +174,21 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
               : "bg-red-100 text-red-800"
           }`}
         >
-          {formatDate(scheduledDate)} - {status || "PENDING"}
+          {/* {updateDate ? <div></div> : formatDate(scheduledDate)} */}
+
+          {updateDate && (
+            <div className="mt-1 text-sm text-gray-600">
+              <span className="font-semibold">Updated: </span>
+              {formatDate(updateDate)}
+            </div>
+          )}
+
+          {remark && (
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">Remark: </span>
+              {remark}
+            </div>
+          )}
         </span>
         {/* Always show the Update button, with custom dropdowns instead of the calendar */}
         <div className="flex gap-2">
@@ -253,20 +267,6 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
           )}
         </div>
       </div>
-
-      {updateDate && (
-        <div className="mt-1 text-sm text-gray-600">
-          <span className="font-semibold">Updated: </span>
-          {formatDate(updateDate)}
-        </div>
-      )}
-
-      {remark && (
-        <div className="text-sm text-gray-600">
-          <span className="font-semibold">Remark: </span>
-          {remark}
-        </div>
-      )}
     </div>
   );
 }
