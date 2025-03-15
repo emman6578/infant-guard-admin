@@ -174,8 +174,6 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
               : "bg-red-100 text-red-800"
           }`}
         >
-          {updateDate ? <div></div> : formatDate(scheduledDate)}
-
           {updateDate && (
             <div className="mt-1 text-sm text-gray-600">
               <span className="font-semibold">Updated: </span>
@@ -238,6 +236,7 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
                     ))}
                   </select>
                 </div>
+
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={handleCancel}>
                     Cancel
@@ -252,6 +251,7 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
               </div>
             </PopoverContent>
           </Popover>
+
           {status !== "DONE" && (
             <Button
               onClick={() =>
@@ -267,6 +267,17 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
           )}
         </div>
       </div>
+      {updateDate ? (
+        <div></div>
+      ) : (
+        <div
+          className={`badge ${
+            status === "DONE" ? " text-green-800" : " text-red-800"
+          }`}
+        >
+          {formatDate(scheduledDate)}
+        </div>
+      )}
     </div>
   );
 }
