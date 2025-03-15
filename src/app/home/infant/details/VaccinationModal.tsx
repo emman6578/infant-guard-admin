@@ -174,7 +174,7 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
               : "bg-red-100 text-red-800"
           }`}
         >
-          {/* {updateDate ? <div></div> : formatDate(scheduledDate)} */}
+          {updateDate ? <div></div> : formatDate(scheduledDate)}
 
           {updateDate && (
             <div className="mt-1 text-sm text-gray-600">
