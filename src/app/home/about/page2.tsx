@@ -49,7 +49,7 @@ const vaccineSchedule = [
     sixWeeks: false,
     tenWeeks: false,
     fourteenWeeks: true,
-    nineMonths: false,
+    nineMonths: true,
     oneYear: false,
   },
   {

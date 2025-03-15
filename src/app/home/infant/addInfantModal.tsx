@@ -227,11 +227,13 @@ const AddInfantModal = () => {
       );
     },
     onSuccess: async (res) => {
+      console.log("Test create");
       queryClient.invalidateQueries({ queryKey: ["infants"] });
       clearForm();
       setIsOpen(false);
       const infantId = res?.data?.id;
       try {
+        console.log(infantId);
         await CreateVaccineSchedule(infantId);
         await CreateVaccineProgress(infantId);
       } catch (error) {

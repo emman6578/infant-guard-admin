@@ -10,7 +10,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 
 export default function VaccinationModal({
@@ -22,7 +21,6 @@ export default function VaccinationModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schedules: any[];
   handleUpdate: (
     dose: string,
@@ -66,7 +64,6 @@ export default function VaccinationModal({
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function VaccineScheduleItem({ schedule, handleUpdate, handleNotify }: any) {
   return (
     <div className="border rounded-lg p-4">
@@ -91,29 +88,28 @@ function VaccineScheduleItem({ schedule, handleUpdate, handleNotify }: any) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
-  // Local state for the selected date from the calendar.
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  // Local state to control the popover (calendar) open state.
+  // New state for dropdown selections instead of a single Date.
+  const [selectedMonth, setSelectedMonth] = useState<number | "">("");
+  const [selectedDay, setSelectedDay] = useState<number | "">("");
+  const [selectedYear, setSelectedYear] = useState<number | "">("");
+  // Local state to control the popover open state.
   const [open, setOpen] = useState(false);
 
-  // For display purposes: e.g. "firstDose" becomes "first Dose"
+  // Display values.
   const doseLabel = dose.replace("Dose", " Dose");
   const status = schedule.Vaccination[0]?.[`${dose}Status`];
   const vaccineName = schedule.vaccine_names[0]?.vaccine_name;
   const scheduledDate = schedule[dose];
 
-  // Keys for the additional fields.
+  // Additional fields.
   const updateKey = `Update${dose.charAt(0).toUpperCase() + dose.slice(1)}`;
   const remarkKey = `remark_${dose.charAt(0).toUpperCase() + dose.slice(1)}`;
   const updateDate = schedule[updateKey];
   const remark = schedule[remarkKey];
 
-  // When the user confirms a date, format it as mm-dd-yyyy, call handleUpdate, and close the popover.
+  // Reused function for handling the update.
   const handleDateConfirm = (date: Date) => {
-    // Reset the selected date.
-    setSelectedDate(null);
     // Format the date as mm-dd-yyyy.
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
@@ -128,9 +124,44 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
       formattedDate,
       schedule?.id
     );
-    // Close the popover.
     setOpen(false);
   };
+
+  const handleConfirm = () => {
+    if (selectedMonth && selectedDay && selectedYear) {
+      const date = new Date(selectedYear, selectedMonth - 1, selectedDay);
+      // Reset dropdown states.
+      setSelectedMonth("");
+      setSelectedDay("");
+      setSelectedYear("");
+      handleDateConfirm(date);
+    }
+  };
+
+  const handleCancel = () => {
+    setSelectedMonth("");
+    setSelectedDay("");
+    setSelectedYear("");
+    setOpen(false);
+  };
+
+  // Dropdown options.
+  const months = [
+    { value: 1, label: "January" },
+    { value: 2, label: "February" },
+    { value: 3, label: "March" },
+    { value: 4, label: "April" },
+    { value: 5, label: "May" },
+    { value: 6, label: "June" },
+    { value: 7, label: "July" },
+    { value: 8, label: "August" },
+    { value: 9, label: "September" },
+    { value: 10, label: "October" },
+    { value: 11, label: "November" },
+    { value: 12, label: "December" },
+  ];
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const years = Array.from({ length: 2025 - 2000 + 1 }, (_, i) => 2000 + i);
 
   return (
     <div className="border p-2 rounded-lg mb-2">
@@ -145,7 +176,7 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
         >
           {formatDate(scheduledDate)} - {status || "PENDING"}
         </span>
-        {/* Always show the Update button, but only show Remind if status is not "DONE" */}
+        {/* Always show the Update button, with custom dropdowns instead of the calendar */}
         <div className="flex gap-2">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -153,31 +184,57 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
                 Update
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate!}
-                onSelect={setSelectedDate}
-                initialFocus
-              />
-              <div className="flex justify-end mt-2 gap-2 p-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedDate(null);
-                    setOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() =>
-                    selectedDate && handleDateConfirm(selectedDate)
-                  }
-                  disabled={!selectedDate}
-                >
-                  Confirm
-                </Button>
+            <PopoverContent className="w-auto p-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-2">
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                    className="border rounded p-2"
+                  >
+                    <option value="">Month</option>
+                    {months.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedDay}
+                    onChange={(e) => setSelectedDay(Number(e.target.value))}
+                    className="border rounded p-2"
+                  >
+                    <option value="">Day</option>
+                    {days.map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    className="border rounded p-2"
+                  >
+                    <option value="">Year</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={!(selectedMonth && selectedDay && selectedYear)}
+                  >
+                    Confirm
+                  </Button>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -197,7 +254,6 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
         </div>
       </div>
 
-      {/* Display the updated date if it exists */}
       {updateDate && (
         <div className="mt-1 text-sm text-gray-600">
           <span className="font-semibold">Updated: </span>
@@ -205,7 +261,6 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
         </div>
       )}
 
-      {/* Display the remark if it exists */}
       {remark && (
         <div className="text-sm text-gray-600">
           <span className="font-semibold">Remark: </span>

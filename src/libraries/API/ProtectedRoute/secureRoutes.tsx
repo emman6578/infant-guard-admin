@@ -67,6 +67,7 @@ interface ProtectedRoutesType {
     body: string,
     data: string
   ) => Promise<unknown>;
+  deleteMsg: (conversationIds: []) => Promise<unknown>;
 }
 
 const ProtectedRoutesContext = createContext<ProtectedRoutesType | undefined>(
@@ -764,6 +765,32 @@ export const ProtectedRoutesContextProvider = ({
     return await res.json();
   };
 
+  const deleteMsg = async (conversationIds: []) => {
+    const data = {
+      conversationIds,
+    };
+
+    const res = await fetch(`${API_URL}/msg`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      let errorMessage = "Failed to send text";
+      const responseBody = await res.json();
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
   return (
     <ProtectedRoutesContext.Provider
       value={{
@@ -791,6 +818,7 @@ export const ProtectedRoutesContextProvider = ({
         loadConversation,
         unreadCount,
         pushTokenMessage,
+        deleteMsg,
       }}
     >
       {children}
