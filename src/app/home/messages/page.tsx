@@ -389,7 +389,7 @@ const Messages = () => {
     try {
       await sendNotifyMutation.mutateAsync({
         id,
-        title: `You have one new message from`,
+        title: `You have one new message`,
         body: `Ligao City Health Center`,
         data: "Vaccine Reminder",
       });
