@@ -4,13 +4,14 @@
 import { useState } from "react";
 import { formatDate } from "./utils";
 
-// ShadCN UI components – adjust the paths as needed.
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useProtectedRoutesApi } from "@/libraries/API/ProtectedRoute/secureRoutes";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function VaccinationModal({
   isOpen,
@@ -254,12 +255,12 @@ function DoseStatus({ dose, schedule, handleUpdate, handleNotify }: any) {
 
           {status !== "DONE" && (
             <Button
-              onClick={() =>
+              onClick={() => {
                 handleNotify(
                   vaccineName,
                   `${doseLabel} - ${formatDate(scheduledDate)}`
-                )
-              }
+                );
+              }}
               className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Remind

@@ -14,8 +14,36 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 
 const MainVaccinePage = () => {
-  const { infantDataDownload, UploadDocumentToInfant, getPushToken } =
-    useProtectedRoutesApi();
+  const {
+    infantDataDownload,
+    UploadDocumentToInfant,
+    getPushToken,
+    storeNotification,
+  } = useProtectedRoutesApi();
+
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      title,
+      body,
+      data,
+    }: {
+      title: string;
+      body: string;
+      data: string;
+    }) => {
+      await storeNotification(title, body, data);
+    },
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Alert.alert("Success", "Notification Stored");
+    },
+    onError: (error: any) => {
+      // Alert.alert(
+      //   "Error",
+      //   error.message || "Failed to update vaccine progress."
+      // );
+    },
+  });
 
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -65,6 +93,13 @@ const MainVaccinePage = () => {
     try {
       await sendNotifyMutation.mutateAsync({
         infant_id: infantId!,
+        title: `Vaccination Form is available to Download`,
+        body: `Congratulations! 100% compliance rate for your infants vaccination`,
+        data: "Vaccine Reminder",
+      });
+
+      //store this notif 3
+      updateMutation.mutate({
         title: `Vaccination Form is available to Download`,
         body: `Congratulations! 100% compliance rate for your infants vaccination`,
         data: "Vaccine Reminder",

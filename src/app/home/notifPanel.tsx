@@ -22,7 +22,7 @@ export default function Notifications({ notifications }: NotificationsProps) {
             </div>
             <p className="mt-2 text-gray-700">{notification.body}</p>
             <p className="mt-1 text-sm text-gray-600">
-              Parent: {notification?.parent?.fullname}
+              {/* Parent: {notification?.parent?.fullname} */}
             </p>
           </div>
         ))}

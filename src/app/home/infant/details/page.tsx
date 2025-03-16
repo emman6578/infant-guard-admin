@@ -24,7 +24,41 @@ export default function InfantDetails() {
     updatVaccineSchedDate,
     CreateVaccineProgress,
     CreateVaccineSchedule,
+    storeNotification,
   } = useProtectedRoutesApi();
+
+  // const { storeNotification } = useProtectedRoutesApi();
+  // const queryClient = useQueryClient();
+
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      title,
+      body,
+      data,
+    }: {
+      title: string;
+      body: string;
+      data: string;
+    }) => {
+      await storeNotification(title, body, data);
+    },
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Alert.alert("Success", "Notification Stored");
+    },
+    onError: (error: any) => {
+      // Alert.alert(
+      //   "Error",
+      //   error.message || "Failed to update vaccine progress."
+      // );
+    },
+  });
+
+  // updateMutation.mutate({
+  //   title: vaccineName,
+  //   body: `${formatDate(scheduledDate)}`,
+  //   data: JSON.stringify(""),
+  // });
 
   const onMountCreateSchedAndProgress = async (id: any) => {
     await CreateVaccineProgress(id!);
@@ -172,6 +206,14 @@ export default function InfantDetails() {
           body,
           data: "Vaccine Reminder",
         });
+
+        updateMutation.mutate({
+          title: title,
+          body: formattedDate,
+          data: JSON.stringify(body),
+        });
+
+        //store this notif 1
       } catch (error) {
         console.error(
           "handleUpdate: Error updating vaccine status or sending notification:",
@@ -192,6 +234,13 @@ export default function InfantDetails() {
     try {
       await sendNotifyMutation.mutateAsync({
         infant_id: id!,
+        title: `Reminder for baby ${data?.data.fullname} his/her ${title}`,
+        body: `was scheduled for: ${body}`,
+        data: "Vaccine Reminder",
+      });
+
+      //store this notif 2
+      updateMutation.mutate({
         title: `Reminder for baby ${data?.data.fullname} his/her ${title}`,
         body: `was scheduled for: ${body}`,
         data: "Vaccine Reminder",

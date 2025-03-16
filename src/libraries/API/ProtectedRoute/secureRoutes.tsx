@@ -68,6 +68,11 @@ interface ProtectedRoutesType {
     data: string
   ) => Promise<unknown>;
   deleteMsg: (conversationIds: []) => Promise<unknown>;
+  storeNotification: (
+    title: string,
+    body: string,
+    data: string
+  ) => Promise<unknown>;
 }
 
 const ProtectedRoutesContext = createContext<ProtectedRoutesType | undefined>(
@@ -791,6 +796,41 @@ export const ProtectedRoutesContextProvider = ({
     return await res.json();
   };
 
+  const storeNotification = async (
+    title: string,
+    body: string,
+    data: string
+  ) => {
+    const details = {
+      title,
+      body,
+      data,
+    };
+    const res = await fetch(`${API_URL}/notification/store`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(details),
+    });
+
+    if (!res.ok) {
+      // Check if response is not OK (status code not in range 200-299)
+      let errorMessage = "Failed to update vaccine progress";
+      const responseBody = await res.json(); // Attempt to parse response body as JSON
+
+      // Check if response body has an error message from the backend
+      if (responseBody && responseBody.message) {
+        errorMessage = responseBody.message;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  };
+
   return (
     <ProtectedRoutesContext.Provider
       value={{
@@ -819,6 +859,7 @@ export const ProtectedRoutesContextProvider = ({
         unreadCount,
         pushTokenMessage,
         deleteMsg,
+        storeNotification,
       }}
     >
       {children}
