@@ -53,7 +53,7 @@ const VaccineManagement = () => {
               InfantGuard
             </h1>
             <p className="text-gray-600 text-lg">
-              Bicol University Computer Science Capstone Project 2024
+              Bicol University Computer Science Capstone Project 2025
             </p>
           </div>
 
