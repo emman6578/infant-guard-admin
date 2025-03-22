@@ -114,18 +114,6 @@ const Login = () => {
               )}
             </button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <p>
-              Having trouble?{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-500 font-medium"
-              >
-                Contact support
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </div>
