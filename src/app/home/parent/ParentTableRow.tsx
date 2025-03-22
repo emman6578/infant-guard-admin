@@ -33,21 +33,21 @@ export const ParentTableRow = ({
       <Input
         value={editableParent?.fullname}
         onChange={(e) => onChange("fullname", e.target.value)}
-        disabled={!isEditing}
+        readOnly={!isEditing}
       />
     </TableCell>
     <TableCell>
       <Input
         value={editableParent?.contact_number}
         onChange={(e) => onChange("contact_number", e.target.value)}
-        disabled={!isEditing}
+        readOnly={!isEditing}
       />
     </TableCell>
     <TableCell>
       <Input
         value={editableParent?.auth?.email}
         onChange={(e) => onChange("auth.email", e.target.value)}
-        disabled={!isEditing}
+        readOnly={!isEditing}
       />
     </TableCell>
     <TableCell>

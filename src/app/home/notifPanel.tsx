@@ -19,7 +19,7 @@ export default function Notifications({ notifications }: NotificationsProps) {
 
   return (
     <section className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+      <h2 className="text-2xl font-bold mb-4">Activity Log</h2>
       <div className="space-y-4">
         {uniqueNotifications.map((notification) => (
           <div key={notification.id} className="p-4 bg-gray-50 rounded-lg">

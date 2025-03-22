@@ -19,6 +19,7 @@ import Sidebar from "@/components/sidebar";
 import Footer from "@/components/footer";
 import Notifications from "./notifPanel";
 import { useProtectedRoutesApi } from "@/libraries/API/ProtectedRoute/secureRoutes";
+import { useRouter } from "next/navigation";
 
 /** DASHBOARD & VACCINE DATA TYPES **/
 
@@ -110,6 +111,7 @@ interface VaccineStat {
 interface IndividualData {
   name?: string;
   percentage?: number;
+  id?: string;
 }
 
 /** Merged Home Component **/
@@ -117,6 +119,7 @@ export default function Home() {
   // Get API functions from the protected routes hook
   const { getAdminDataDashBoard, vaccinePercentageRoutes } =
     useProtectedRoutesApi();
+  const router = useRouter();
 
   /** FILTER STATES **/
   // Gender filter dropdown
@@ -260,6 +263,7 @@ export default function Home() {
 
     return filteredVaccineData
       .map((infant: any) => ({
+        id: infant.id, // Include infant ID
         name: infant?.fullname,
         percentage:
           infant?.vaccinationSched?.find(
@@ -267,6 +271,22 @@ export default function Home() {
           )?.percentage || 0,
       }))
       .sort((a: any, b: any) => (b.percentage || 0) - (a.percentage || 0));
+  };
+
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+
+    const handleClick = () => {
+      if (payload && payload.id) {
+        router.push(`/home/infant/details?id=${payload.id}`);
+      }
+    };
+
+    return (
+      <g onClick={handleClick} style={{ cursor: "pointer" }}>
+        <circle cx={cx} cy={cy} r={5} fill="#004749" />
+      </g>
+    );
   };
 
   // Local state to track the selected vaccine for drill-down view
@@ -460,13 +480,14 @@ export default function Home() {
                               type="monotone"
                               dataKey="percentage"
                               stroke="#004749"
-                              dot={{ r: 5 }}
+                              dot={<CustomDot />}
                             />
                           </LineChart>
                         </ResponsiveContainer>
                         <p className="text-sm text-gray-600 mt-2">
                           Showing {individualData.length} infants, sorted by
-                          coverage percentage
+                          coverage percentage. Click dots to view infant
+                          details.
                         </p>
                       </div>
                     ) : (
@@ -611,7 +632,10 @@ export default function Home() {
                       {filteredDashboardInfants.map((infant) => (
                         <div
                           key={infant?.id}
-                          className="flex flex-col md:flex-row items-center p-4 bg-gray-50 rounded-lg"
+                          onClick={() =>
+                            router.push(`/home/infant/details?id=${infant?.id}`)
+                          }
+                          className="flex flex-col md:flex-row items-center p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img

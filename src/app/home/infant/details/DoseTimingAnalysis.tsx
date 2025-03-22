@@ -273,19 +273,6 @@ const DoseTimingAnalysis: React.FC<DoseTimingAnalysisProps> = ({
       </div>
 
       <div className="border-t pt-4 mb-4">
-        <h3 className="text-xl font-semibold mb-2">Predictive Analysis:</h3>
-        <p>
-          Based on current trends, a significant percentage of doses have been
-          administered early. This proactive approach may shorten the window of
-          vulnerability; however, if a vaccine is administered too early, the
-          infant’s immune system may not generate an optimal response.
-          Conversely, late vaccination increases the period during which the
-          child is unprotected. Monitoring these patterns can help ensure that
-          future doses are timed for maximum efficacy.
-        </p>
-      </div>
-
-      <div className="border-t pt-4 mb-4">
         <h3 className="text-xl font-semibold mb-2">
           Potential Effects of Early or Late Vaccination:
         </h3>

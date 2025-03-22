@@ -31,14 +31,14 @@ export const ParentTable = ({
   isUpdating,
   isDeleting,
 }: ParentTableProps) => (
-  <Table className="bg-white rounded-2xl">
+  <Table className="bg-white rounded-2xl text-gray-900">
     <TableHeader>
       <TableRow>
-        <TableHead>Full Name</TableHead>
-        <TableHead>Contact Number</TableHead>
-        <TableHead>Email</TableHead>
-        <TableHead>Address</TableHead>
-        <TableHead>Actions</TableHead>
+        <TableHead className="text-gray-900">Full Name</TableHead>
+        <TableHead className="text-gray-900">Contact Number</TableHead>
+        <TableHead className="text-gray-900">Email</TableHead>
+        <TableHead className="text-gray-900">Address</TableHead>
+        <TableHead className="text-gray-900">Actions</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>

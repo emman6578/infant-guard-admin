@@ -54,12 +54,6 @@ export default function InfantDetails() {
     },
   });
 
-  // updateMutation.mutate({
-  //   title: vaccineName,
-  //   body: `${formatDate(scheduledDate)}`,
-  //   data: JSON.stringify(""),
-  // });
-
   const onMountCreateSchedAndProgress = async (id: any) => {
     await CreateVaccineProgress(id!);
     await CreateVaccineSchedule(id!);
@@ -272,10 +266,28 @@ export default function InfantDetails() {
 
   // Prepare data for the chart: for each schedule, extract the vaccine name and overall percentage
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chartData = sortedVaccinationSchedule.map((schedule: any) => ({
-    vaccine: schedule.vaccine_names[0]?.vaccine_name,
-    percentage: schedule.Vaccination[0]?.percentage || 0,
-  }));
+  // const chartData = sortedVaccinationSchedule.map((schedule: any) => ({
+  //   vaccine: schedule.vaccine_names[0]?.vaccine_name,
+  //   percentage: schedule.Vaccination[0]?.percentage || 0,
+  // }));
+
+  const chartData = sortedVaccinationSchedule.map((schedule: any) => {
+    const vaccineName = schedule.vaccine_names[0]?.vaccine_name;
+    const frequency = Number(schedule.vaccine_names[0]?.frequency) || 0;
+    let doneCount = 0;
+
+    // Check for each updated dose status
+    if (schedule.UpdateFirstDose) doneCount++;
+    if (schedule.UpdateSecondDose) doneCount++;
+    if (schedule.UpdateThirdDose) doneCount++;
+
+    // Calculate the percentage based on frequency and done count
+    const percentage = frequency
+      ? Math.round((doneCount / frequency) * 100)
+      : 0;
+
+    return { vaccine: vaccineName, percentage };
+  });
 
   const isAllVaccinated = sortedVaccinationSchedule.every((schedule: any) => {
     const frequency = schedule.vaccine_names[0]?.frequency;
