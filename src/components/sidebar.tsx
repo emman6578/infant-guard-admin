@@ -72,12 +72,12 @@ const Sidebar = ({ unreadCount }: SidebarProps) => {
         </button>
 
         <button
-          onClick={() => handleTabClick("/contact")}
+          onClick={() => handleTabClick("/home/contact")}
           className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/contact" ? "bg-gray-800 text-blue-400" : ""
+            currentPath === "/home/contact" ? "bg-gray-800 text-blue-400" : ""
           }`}
         >
-          Contact Us
+          About Us
         </button>
       </nav>
       <div className="mt-10 align-middle">
