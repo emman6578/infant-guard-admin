@@ -120,19 +120,26 @@ const InfantList = () => {
   // Filter infants based on search term and filter selections
   const filteredInfants = React.useMemo(() => {
     if (!data?.data) return [];
-    return data.data.filter((infant: any) => {
-      const matchesSearch = infant.fullname
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesPurok =
-        selectedPurok === "All" || infant.address?.purok === selectedPurok;
-      const matchesBaranggay =
-        selectedBaranggay === "All" ||
-        infant.address?.baranggay === selectedBaranggay;
-      const matchesGender =
-        selectedGender === "All" || infant.gender === selectedGender;
-      return matchesSearch && matchesPurok && matchesBaranggay && matchesGender;
-    });
+    return (
+      data.data
+        .filter((infant: any) => {
+          const matchesSearch = infant.fullname
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          const matchesPurok =
+            selectedPurok === "All" || infant.address?.purok === selectedPurok;
+          const matchesBaranggay =
+            selectedBaranggay === "All" ||
+            infant.address?.baranggay === selectedBaranggay;
+          const matchesGender =
+            selectedGender === "All" || infant.gender === selectedGender;
+          return (
+            matchesSearch && matchesPurok && matchesBaranggay && matchesGender
+          );
+        })
+        // Alphabetical sorting added here
+        .sort((a: any, b: any) => a.fullname.localeCompare(b.fullname))
+    );
   }, [
     data?.data,
     searchTerm,
@@ -159,7 +166,7 @@ const InfantList = () => {
   const handleCheckboxChange = (infantId: string) => {
     setSelectedInfantIds((prev) =>
       prev.includes(infantId)
-        ? prev.filter((id) => id !== infantId)
+        ? prev.filter((id) => id !== infantantId)
         : [...prev, infantId]
     );
   };
