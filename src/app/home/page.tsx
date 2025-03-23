@@ -313,7 +313,7 @@ export default function Home() {
               InfantGuard
             </h1>
             <p className="text-sm font-medium text-gray-300 mt-[-2px]">
-              We care about babies
+              undergrad capstone project
             </p>
           </div>
         </div>
