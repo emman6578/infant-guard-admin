@@ -22,15 +22,7 @@ const Sidebar = ({ unreadCount }: SidebarProps) => {
   return (
     <aside className="bg-[#ffbd5f] text-black p-3 h-full sticky top-0">
       <div className="mb-20 flex items-center gap-3">
-        {/* Replace this div with your logo image */}
-        <div className="h-8 w-8 bg-gray-800 rounded-lg">
-          <img
-            src="/app-logo.jpeg"
-            alt="Logo"
-            className="h-8 w-8 object-contain rounded-lg"
-          />
-        </div>
-        <p className="text-2xl font-bold">Infant Guard</p>
+        <p className="text-2xl font-bold">Administrator</p>
       </div>
       <nav className="flex flex-col gap-2">
         <button

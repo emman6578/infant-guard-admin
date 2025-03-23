@@ -302,6 +302,22 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="p-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
+        <div className="flex items-center space-x-4 hover:scale-105 transition-transform duration-200 mb-3">
+          <img
+            src="/app-logo.jpeg"
+            alt="Logo"
+            className="h-12 w-12 object-cover rounded-lg shadow-lg ring-2 ring-white/20"
+          />
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-semibold bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">
+              InfantGuard
+            </h1>
+            <p className="text-sm font-medium text-gray-300 mt-[-2px]">
+              We care about babies
+            </p>
+          </div>
+        </div>
+
         <div className="max-w-6xl mx-auto w-full">
           {/* Filter Section Positioned at Top Right */}
           <div className="flex justify-end mb-8">
