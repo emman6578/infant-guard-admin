@@ -33,16 +33,8 @@ const MainVaccinePage = () => {
     }) => {
       await storeNotification(title, body, data);
     },
-    onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      // Alert.alert("Success", "Notification Stored");
-    },
-    onError: (error: any) => {
-      // Alert.alert(
-      //   "Error",
-      //   error.message || "Failed to update vaccine progress."
-      // );
-    },
+    onSuccess: () => {},
+    onError: (error: any) => {},
   });
 
   const queryClient = useQueryClient();
