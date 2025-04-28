@@ -60,7 +60,7 @@ const VaccineManagement = () => {
           {/* Project Info Section */}
           <div className="bg-blue-50 rounded-lg p-6 shadow-md mb-8">
             <h2 className="text-2xl font-semibold text-blue-800 mb-4">
-              About Our Capstone Project
+              About Our Thesis Project
             </h2>
             <p className="text-gray-700 mb-4">
               InfantGuard is an innovative immunization tracking system designed
