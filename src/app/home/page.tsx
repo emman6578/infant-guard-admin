@@ -2,17 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  LineChart,
-  Line,
-} from "recharts";
 
 // Components
 import Sidebar from "@/components/sidebar";
@@ -20,6 +9,8 @@ import Footer from "@/components/footer";
 import Notifications from "./notifPanel";
 import { useProtectedRoutesApi } from "@/libraries/API/ProtectedRoute/secureRoutes";
 import { useRouter } from "next/navigation";
+import VaccineDashboard from "./VaccineDrillDown";
+import VaccinationReportGenerator from "./VaccinationSummary";
 
 /** DASHBOARD & VACCINE DATA TYPES **/
 
@@ -296,24 +287,24 @@ export default function Home() {
   const individualData = processIndividualData();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] min-h-screen bg-[#026167]">
+    <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] min-h-screen bg-[#f4faff]">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
       <main className="p-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform duration-200 mb-3">
+        <div className="flex items-center space-x-4 hover:scale-105 transition-transform duration-200">
           <img
             src="/app-logo.jpeg"
             alt="Logo"
             className="h-12 w-12 object-cover rounded-lg shadow-lg ring-2 ring-white/20"
           />
-          <div className="flex flex-col">
-            <h1 className="text-4xl font-semibold bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">
+          <div className="flex flex-col rounded-lg p-4 shadow-lg">
+            <h1 className="text-4xl font-semibold bg-gradient-to-r from-[#93acff] to-[#8993ff] bg-clip-text text-transparent">
               InfantGuard
             </h1>
             <p className="text-sm font-medium text-gray-300 mt-[-2px]">
-              undergrad capstone project
+              undergrad thesis project
             </p>
           </div>
         </div>
@@ -321,10 +312,17 @@ export default function Home() {
         <div className="max-w-6xl mx-auto w-full">
           {/* Filter Section Positioned at Top Right */}
           <div className="flex justify-end mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <div
+              className="p-4 rounded-xl shadow-md space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-4"
+              style={{
+                backgroundColor: "#f4faff",
+                borderLeft: "4px solid #8993ff",
+              }}
+            >
               {/* Gender Filter Dropdown */}
               <select
-                className="p-2 border rounded w-full sm:w-auto"
+                className="p-2 border rounded-lg w-full sm:w-auto focus:outline-none focus:ring-2"
+                style={{ backgroundColor: "#dbedff", borderColor: "#8993ff" }}
                 value={filterGender}
                 onChange={(e) => setFilterGender(e.target.value)}
               >
@@ -335,11 +333,12 @@ export default function Home() {
 
               {/* Baranggay Filter Dropdown */}
               <select
-                className="p-2 border rounded w-full sm:w-auto"
+                className="p-2 border rounded-lg w-full sm:w-auto focus:outline-none focus:ring-2"
+                style={{ backgroundColor: "#accbff", borderColor: "#8993ff" }}
                 value={filterBaranggay}
                 onChange={(e) => {
                   setFilterBaranggay(e.target.value);
-                  setFilterPurok("all"); // Reset purok when baranggay changes
+                  setFilterPurok("all"); // Reset purok
                 }}
               >
                 <option value="all">All Baranggay</option>
@@ -352,7 +351,8 @@ export default function Home() {
 
               {/* Purok Filter Dropdown */}
               <select
-                className="p-2 border rounded w-full sm:w-auto"
+                className="p-2 border rounded-lg w-full sm:w-auto focus:outline-none focus:ring-2"
+                style={{ backgroundColor: "#93acff", borderColor: "#8993ff" }}
                 value={filterPurok}
                 onChange={(e) => setFilterPurok(e.target.value)}
               >
@@ -379,171 +379,50 @@ export default function Home() {
               {/* Left Column: Vaccine Graph and Dashboard Data */}
               <div className="space-y-8">
                 {/* Vaccine Graph Section */}
-                <div className="w-full space-y-8">
-                  {/* Summary Chart Card */}
-                  <div className="bg-white shadow rounded-lg p-6">
-                    <h1 className="text-2xl font-bold mb-4">
-                      Vaccination Coverage{" "}
-                      {filteredVaccineData
-                        ? `(${filteredVaccineData.length} Infants)`
-                        : ""}
-                    </h1>
-                    {isLoadingVaccine ? (
-                      <p>Loading vaccine graph data...</p>
-                    ) : isErrorVaccine ? (
-                      <p className="text-red-500">
-                        Error: {vaccineError?.message}
-                      </p>
-                    ) : (
-                      <div className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={vaccineStats}
-                            margin={{
-                              top: 20,
-                              right: 30,
-                              left: 20,
-                              bottom: 50,
-                            }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                              dataKey="vaccineName"
-                              angle={-20}
-                              textAnchor="end"
-                              interval={0}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <YAxis
-                              domain={[0, 100]}
-                              tickFormatter={(v) => `${v}%`}
-                            />
-                            <Tooltip
-                              content={({ active, payload }) =>
-                                active && payload && payload.length ? (
-                                  <div className="bg-white p-4 shadow-lg rounded-lg">
-                                    <p className="font-bold">
-                                      {payload[0].payload.vaccineName}
-                                    </p>
-                                    <p>
-                                      Average:{" "}
-                                      {payload[0].payload.avg?.toFixed(1)}%
-                                    </p>
-                                    <p>
-                                      Range: {payload[0].payload.min}% -{" "}
-                                      {payload[0].payload.max}%
-                                    </p>
-                                    <button
-                                      className="mt-2 text-blue-600 hover:underline"
-                                      onClick={() =>
-                                        setSelectedVaccine(
-                                          payload[0].payload.vaccineName
-                                        )
-                                      }
-                                    >
-                                      Show individual data →
-                                    </button>
-                                  </div>
-                                ) : null
-                              }
-                            />
-                            <Bar
-                              dataKey="avg"
-                              name="Average Coverage"
-                              fill="#004749"
-                              onClick={(data) =>
-                                setSelectedVaccine(data.vaccineName)
-                              }
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Individual Vaccine Drill-Down Card */}
-                  <div className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-xl font-bold mb-4">
-                      {selectedVaccine
-                        ? `${selectedVaccine} Coverage`
-                        : "Individual Vaccine Drill Down"}
-                    </h2>
-                    {selectedVaccine ? (
-                      <div className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={individualData}
-                            margin={{
-                              top: 20,
-                              right: 30,
-                              left: 20,
-                              bottom: 40,
-                            }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" hide />
-                            <YAxis
-                              domain={[0, 100]}
-                              tickFormatter={(v) => `${v}%`}
-                            />
-                            <Tooltip
-                              formatter={(value: number) => [
-                                `${value}%`,
-                                "Coverage",
-                              ]}
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="percentage"
-                              stroke="#004749"
-                              dot={<CustomDot />}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                        <p className="text-sm text-gray-600 mt-2">
-                          Showing {individualData.length} infants, sorted by
-                          coverage percentage. Click dots to view infant
-                          details.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="h-[400px] flex items-center justify-center border border-dashed border-gray-300 rounded p-4">
-                        <p>
-                          Please select a vaccine from the chart above to see
-                          individual data.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <VaccineDashboard
+                  filteredVaccineData={filteredVaccineData}
+                  vaccineStats={vaccineStats}
+                  individualData={individualData}
+                  isLoadingAdmin={isLoadingAdmin}
+                  isErrorAdmin={isErrorAdmin}
+                  adminError={adminError}
+                  isLoadingVaccine={isLoadingVaccine}
+                  isErrorVaccine={isErrorVaccine}
+                  vaccineError={vaccineError}
+                  selectedVaccine={selectedVaccine}
+                  setSelectedVaccine={setSelectedVaccine}
+                />
 
                 {/* Dashboard Data Section */}
                 <div className="space-y-12">
                   {/* Overview Cards */}
-                  <section className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-2xl font-bold mb-4">Overview</h2>
+                  <section className="bg-[#f4faff] shadow rounded-lg p-6">
+                    <h2 className="text-2xl font-bold mb-4 text-[#505050]">
+                      Overview
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <div className="p-4 bg-[#dbedff] rounded-lg text-center">
                         <h3 className="text-lg font-medium text-gray-600">
                           Total Parents
                         </h3>
-                        <p className="text-4xl font-bold text-blue-500 mt-2">
+                        <p className="text-4xl font-bold text-[#93acff] mt-2">
                           {adminData?.overview?.totalParents}
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <div className="p-4 bg-[#dbedff] rounded-lg text-center">
                         <h3 className="text-lg font-medium text-gray-600">
                           Total Infants
                         </h3>
-                        <p className="text-4xl font-bold text-green-500 mt-2">
+                        <p className="text-4xl font-bold text-[#93acff] mt-2">
                           {adminData?.overview?.totalInfants}
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <div className="p-4 bg-[#dbedff] rounded-lg text-center">
                         <h3 className="text-lg font-medium text-gray-600">
                           Total Vaccinations
                         </h3>
-                        <p className="text-4xl font-bold text-red-500 mt-2">
+                        <p className="text-4xl font-bold text-[#93acff] mt-2">
                           {adminData?.overview?.totalVaccinations}
                         </p>
                       </div>
@@ -551,8 +430,8 @@ export default function Home() {
                   </section>
 
                   {/* Vaccination Summary */}
-                  <section className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-2xl font-bold mb-4">
+                  <section className="bg-[#f4faff] shadow rounded-lg p-6">
+                    <h2 className="text-2xl font-bold mb-4 text-[#5f5f5f]">
                       Vaccination Summary
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -562,7 +441,7 @@ export default function Home() {
                           ([dose, summary]) => (
                             <div
                               key={dose}
-                              className="p-4 bg-gray-50 rounded-lg"
+                              className="p-4 bg-[#dbedff] rounded-lg"
                             >
                               <h3 className="text-lg font-medium capitalize mb-2">
                                 {dose}
@@ -585,11 +464,16 @@ export default function Home() {
                           )
                         )}
                     </div>
+                    <VaccinationReportGenerator
+                      vaccinationData={filteredVaccineData}
+                    />
                   </section>
 
                   {/* Recent Parents */}
-                  <section className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-2xl font-bold mb-4">Recent Parents</h2>
+                  <section className="bg-[#dff0ff] shadow rounded-lg p-6">
+                    <h2 className="text-2xl font-bold mb-4 text-[#424242]">
+                      Recent Parents
+                    </h2>
                     <div className="overflow-x-auto">
                       <table className="min-w-full">
                         <thead className="bg-gray-100">
@@ -640,8 +524,8 @@ export default function Home() {
                   </section>
 
                   {/* Infants and Vaccination Schedules */}
-                  <section className="bg-white shadow rounded-lg p-6">
-                    <h2 className="text-2xl font-bold mb-4">
+                  <section className="bg-[#f4faff] shadow rounded-lg p-6">
+                    <h2 className="text-2xl font-bold mb-4 text-[#424242]">
                       Infants & Vaccination Schedules
                     </h2>
                     <div className="grid grid-cols-1 gap-6">
@@ -651,7 +535,7 @@ export default function Home() {
                           onClick={() =>
                             router.push(`/home/infant/details?id=${infant?.id}`)
                           }
-                          className="flex flex-col md:flex-row items-center p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                          className="flex flex-col md:flex-row items-center p-4 bg-[#dbedff] rounded-lg cursor-pointer hover:bg-[#accbff] transition-colors"
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img

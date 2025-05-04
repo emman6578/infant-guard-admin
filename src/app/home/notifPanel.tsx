@@ -1,40 +1,43 @@
 import React from "react";
-import { NotificationType } from "./page"; // Or import from your shared types file
+import { NotificationType } from "./page"; // Or from shared types
 
 interface NotificationsProps {
   notifications: NotificationType[];
 }
 
 export default function Notifications({ notifications }: NotificationsProps) {
-  // Use a Set to track unique creation timestamps
-  const seenCreated = new Set<string>();
+  const seenTitles = new Set<string>();
   const uniqueNotifications =
     notifications?.filter((notification) => {
-      if (seenCreated.has(notification.title)) {
-        return false;
-      }
-      seenCreated.add(notification.title);
+      if (seenTitles.has(notification.title)) return false;
+      seenTitles.add(notification.title);
       return true;
     }) || [];
 
   return (
-    <section className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4">Activity Log</h2>
+    <section className="bg-[#f4faff] shadow-md rounded-xl p-6">
+      <h2 className="text-2xl font-bold text-[#474747] mb-5 border-b border-[#accbff] pb-2">
+        Activity Log
+      </h2>
       <div className="space-y-4">
         {uniqueNotifications.map((notification) => (
-          <div key={notification.id} className="p-4 bg-gray-50 rounded-lg">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800">
+          <div
+            key={notification.id}
+            className="bg-[#dbedff] rounded-lg p-4 shadow-sm hover:shadow-md transition"
+          >
+            <div className="flex justify-between items-start">
+              <h3 className="text-lg font-semibold text-[#3d3d3d]">
                 {notification.title}
               </h3>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-[#8993ff]">
                 {new Date(notification.created).toLocaleString()}
               </span>
             </div>
-            <p className="mt-2 text-gray-700">{notification.body}</p>
-            <p className="mt-1 text-sm text-gray-600">
-              {/* Parent: {notification?.parent?.fullname} */}
-            </p>
+            <p className="mt-2 text-[#333]">{notification.body}</p>
+            {/* Uncomment below if needed */}
+            {/* <p className="mt-1 text-sm text-[#8993ff]">
+              Parent: {notification?.parent?.fullname}
+            </p> */}
           </div>
         ))}
       </div>

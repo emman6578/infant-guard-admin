@@ -9,6 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import InfantModal from "./editInfantModal";
 import { useRouter } from "next/navigation";
+import {
+  Search,
+  Filter,
+  Calendar,
+  Trash2,
+  Edit,
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+} from "lucide-react";
 
 const InfantList = () => {
   const { infantList, deleteInfants, UploadChildProfileImage } =
@@ -84,8 +94,6 @@ const InfantList = () => {
   }, [searchTerm, selectedPurok, selectedBaranggay, selectedGender]);
 
   // Compute unique dropdown values from data for filtering
-
-  // Unique Baranggays (no change here)
   const uniqueBaranggays = React.useMemo(() => {
     if (!data?.data) return [];
     const baranggays = data.data
@@ -117,6 +125,14 @@ const InfantList = () => {
     return [...new Set(genders)];
   }, [data?.data]);
 
+  // Helper function to get surname for sorting
+  const getSurnameForSorting = (fullname: string) => {
+    if (!fullname) return "";
+    const parts = fullname.trim().split(/\s+/);
+    if (parts.length < 2) return fullname;
+    return parts[parts.length - 1].toLowerCase(); // Get the last part as surname
+  };
+
   // Filter infants based on search term and filter selections
   const filteredInfants = React.useMemo(() => {
     if (!data?.data) return [];
@@ -137,8 +153,12 @@ const InfantList = () => {
             matchesSearch && matchesPurok && matchesBaranggay && matchesGender
           );
         })
-        // Alphabetical sorting added here
-        .sort((a: any, b: any) => a.fullname.localeCompare(b.fullname))
+        // Alphabetical sorting by surname
+        .sort((a: any, b: any) => {
+          const surnameA = getSurnameForSorting(a.fullname);
+          const surnameB = getSurnameForSorting(b.fullname);
+          return surnameA.localeCompare(surnameB);
+        })
     );
   }, [
     data?.data,
@@ -166,7 +186,7 @@ const InfantList = () => {
   const handleCheckboxChange = (infantId: string) => {
     setSelectedInfantIds((prev) =>
       prev.includes(infantId)
-        ? prev.filter((id) => id !== infantantId)
+        ? prev.filter((id) => id !== infantId)
         : [...prev, infantId]
     );
   };
@@ -212,76 +232,135 @@ const InfantList = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-pulse text-gray-700 text-lg">
+          Loading infant records...
+        </div>
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="bg-red-100 border border-red-400 text-gray-700 px-4 py-3 rounded relative">
+        <strong className="font-bold">Error:</strong>
+        <span className="block sm:inline"> {error.message}</span>
+      </div>
+    );
+
+  const formatFullName = (fullname?: string) => {
+    if (!fullname) return "";
+    const parts = fullname.trim().split(/\s+/);
+    if (parts.length < 2) return fullname;
+    const lastName = parts.pop()!;
+    const firstName = parts.shift()!;
+    const middleName = parts.join(" ");
+    return `${lastName}, ${firstName}${middleName ? ` ${middleName}` : ""}`;
+  };
 
   return (
-    <>
+    <div className="bg-[#f4faff] text-gray-800 p-6 rounded-lg shadow-sm">
       {/* Header with Title on the Left and Search/Filter on the Right */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Infant List ({totalItems})</h1>
-        <div className="flex flex-wrap gap-4 items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Infant Records{" "}
+          <span className="bg-[#accbff] px-2.5 py-1 rounded-full text-sm">
+            {totalItems}
+          </span>
+        </h1>
+
+        <div className="flex flex-wrap gap-3 items-center w-full md:w-auto">
           {/* Search Input */}
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border rounded-md p-1 text-sm"
-            placeholder="Search by fullname"
-          />
-          {/* Filter by Baranggay (moved first) */}
-          <select
-            value={selectedBaranggay}
-            onChange={(e) => setSelectedBaranggay(e.target.value)}
-            className="border rounded-md p-1 text-sm"
-          >
-            <option value="All">All Baranggays</option>
-            {uniqueBaranggays.map((baranggay: string) => (
-              <option key={baranggay} value={baranggay}>
-                {baranggay}
-              </option>
-            ))}
-          </select>
-          {/* Filter by Purok (moved second) */}
-          <select
-            value={selectedPurok}
-            onChange={(e) => setSelectedPurok(e.target.value)}
-            className="border rounded-md p-1 text-sm"
-          >
-            <option value="All">All Puroks</option>
-            {uniquePuroks.map((purok: string) => (
-              <option key={purok} value={purok}>
-                {purok}
-              </option>
-            ))}
-          </select>
+          <div className="relative flex-1 md:flex-none">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-3 py-2 border border-[#dbedff] bg-white rounded-md text-sm w-full md:w-56 focus:outline-none focus:ring-2 focus:ring-[#8993ff] text-gray-800"
+              placeholder="Search by name"
+            />
+          </div>
+
+          {/* Filter by Baranggay */}
+          <div className="relative flex-1 md:flex-none">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+            <select
+              value={selectedBaranggay}
+              onChange={(e) => setSelectedBaranggay(e.target.value)}
+              className="pl-10 pr-3 py-2 border border-[#dbedff] bg-white rounded-md text-sm w-full md:w-48 appearance-none focus:outline-none focus:ring-2 focus:ring-[#8993ff] text-gray-800"
+            >
+              <option value="All">All Baranggays</option>
+              {uniqueBaranggays.map((baranggay: string) => (
+                <option key={baranggay} value={baranggay}>
+                  {baranggay}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filter by Purok */}
+          {selectedBaranggay !== "All" && (
+            <div className="relative flex-1 md:flex-none">
+              <select
+                value={selectedPurok}
+                onChange={(e) => setSelectedPurok(e.target.value)}
+                className="pl-3 pr-3 py-2 border border-[#dbedff] bg-white rounded-md text-sm w-full md:w-36 appearance-none focus:outline-none focus:ring-2 focus:ring-[#8993ff] text-gray-800"
+              >
+                <option value="All">All Puroks</option>
+                {uniquePuroks.map((purok: string) => (
+                  <option key={purok} value={purok}>
+                    {purok}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Filter by Gender */}
-          <select
-            value={selectedGender}
-            onChange={(e) => setSelectedGender(e.target.value)}
-            className="border rounded-md p-1 text-sm"
-          >
-            <option value="All">All Genders</option>
-            {uniqueGenders.map((gender: string) => (
-              <option key={gender} value={gender}>
-                {gender}
-              </option>
-            ))}
-          </select>
+          <div className="relative flex-1 md:flex-none">
+            <select
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+              className="pl-3 pr-3 py-2 border border-[#dbedff] bg-white rounded-md text-sm w-full md:w-28 appearance-none focus:outline-none focus:ring-2 focus:ring-[#8993ff] text-gray-800"
+            >
+              <option value="All">Sex</option>
+              {uniqueGenders.map((gender: string) => (
+                <option key={gender} value={gender}>
+                  {gender}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Select All Checkbox */}
-      <div className="flex items-center mb-2">
-        <Checkbox
-          checked={
-            selectedInfantIds.length === paginatedInfants.length &&
-            paginatedInfants.length > 0
-          }
-          onCheckedChange={handleSelectAll}
-          className="mr-2"
-        />
-        <span className="text-sm">Select All</span>
+      {/* Toolbar with Select All and Delete Selected */}
+      <div className="flex flex-wrap justify-between items-center mb-4 bg-[#dbedff] p-3 rounded-md">
+        <div className="flex items-center">
+          <Checkbox
+            checked={
+              selectedInfantIds.length === paginatedInfants.length &&
+              paginatedInfants.length > 0
+            }
+            onCheckedChange={handleSelectAll}
+            className="mr-2 border-[#8993ff]"
+          />
+          <span className="text-sm text-gray-700">Select All</span>
+        </div>
+
+        <Button
+          variant="destructive"
+          onClick={handleDeleteSelected}
+          disabled={selectedInfantIds.length === 0}
+          className="bg-[#972929] hover:bg-[#93acff] text-white flex items-center gap-2"
+        >
+          <Trash2 size={16} />
+          {deleteMutation.isPending
+            ? "Deleting..."
+            : `Delete Selected (${selectedInfantIds.length})`}
+        </Button>
       </div>
 
       {/* Hidden file input for image upload */}
@@ -293,132 +372,223 @@ const InfantList = () => {
         onChange={handleFileChange}
       />
 
-      {/* List of Infants */}
-      <ScrollArea className="h-full pr-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-          {paginatedInfants.map((infant: any) => (
-            <div
-              key={infant.id}
-              className="border p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-4"
-            >
-              <Checkbox
-                checked={selectedInfantIds.includes(infant.id)}
-                onCheckedChange={() => handleCheckboxChange(infant.id)}
-                className="mr-2"
-              />
-
-              {/* Edit Infant Modal */}
-              <InfantModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                infant={selectedInfant}
-              />
-
-              <Button onClick={(e) => handleEditClick(e, infant)}>Edit</Button>
-
-              {/* Infant Image (clickable for upload) */}
-              <div
-                onClick={(e) => handleImageClick(e, infant.id)}
-                className="relative cursor-pointer"
-              >
-                {uploadingImageId === infant.id && (
-                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                    <div className="loader">Uploading...</div>
-                  </div>
-                )}
-                {infant.image && isValidImageUrl(infant.image) ? (
-                  <Image
-                    src={infant.image}
-                    alt={infant.fullname}
-                    className="w-16 h-16 rounded-full object-cover"
-                    width={100}
-                    height={100}
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">No Image</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Infant Details (navigates to details on click) */}
-              <div
-                onClick={() =>
-                  router.push(`/home/infant/details?id=${infant.id}`)
-                }
-              >
-                <h2 className="text-lg font-semibold">{infant.fullname}</h2>
-                <p className="text-sm text-gray-600">
-                  Gender: {infant.gender}
-                  <br />
-                  Weight: {infant.weight} kg
-                  <br />
-                  Height: {infant.height} cm
-                  <br />
-                  Birthday: {infant.birthday.month}/{infant.birthday.day}/
-                  {infant.birthday.year}
-                </p>
-              </div>
-            </div>
-          ))}
+      {/* No results message */}
+      {paginatedInfants.length === 0 && (
+        <div className="bg-white rounded-lg p-8 text-center border border-[#dbedff]">
+          <div className="text-gray-600 mb-2">
+            No infants match your search criteria
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedBaranggay("All");
+              setSelectedPurok("All");
+              setSelectedGender("All");
+            }}
+            className="border-[#accbff] text-[#8993ff] hover:bg-[#f4faff]"
+          >
+            Clear Filters
+          </Button>
         </div>
-      </ScrollArea>
+      )}
+
+      {/* List of Infants */}
+      {paginatedInfants.length > 0 && (
+        <ScrollArea className="h-[calc(100vh-320px)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+            {paginatedInfants.map((infant: any) => (
+              <div
+                key={infant.id}
+                className={`bg-white border border-[#dbedff] p-4 rounded-lg transition-all flex items-center gap-4 bg-red-400${
+                  selectedInfantIds.includes(infant.id)
+                    ? "ring-2 ring-[#8993ff] shadow-md"
+                    : "hover:shadow-md"
+                }`}
+              >
+                <Checkbox
+                  checked={selectedInfantIds.includes(infant.id)}
+                  onCheckedChange={() => handleCheckboxChange(infant.id)}
+                  className="border-[#8993ff]"
+                />
+
+                {/* Infant Image (clickable for upload) */}
+                <div
+                  onClick={(e) => handleImageClick(e, infant.id)}
+                  className="relative cursor-pointer group"
+                >
+                  {uploadingImageId === infant.id && (
+                    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-full">
+                      <div className="animate-spin h-4 w-4 border-2 border-[#8993ff] border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                  {infant.image && isValidImageUrl(infant.image) ? (
+                    <div className="relative">
+                      <Image
+                        src={infant.image}
+                        alt={infant.fullname}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-[#accbff]"
+                        width={100}
+                        height={100}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 rounded-full flex items-center justify-center transition-all group-hover:bg-opacity-20">
+                        <Upload
+                          size={16}
+                          className="text-white opacity-0 group-hover:opacity-100"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-[#dbedff] flex items-center justify-center border-2 border-[#accbff] relative">
+                      <span className="text-gray-500 text-xs">No Image</span>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 rounded-full flex items-center justify-center transition-all group-hover:bg-opacity-10">
+                        <Upload
+                          size={16}
+                          className="text-gray-600 opacity-0 group-hover:opacity-100"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Infant Details (navigates to details on click) */}
+                <div
+                  className="flex-1 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/home/infant/details?id=${infant.id}`)
+                  }
+                >
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {formatFullName(infant.fullname)}
+                  </h2>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <span className="font-medium">Sex:</span> {infant.gender}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <span className="font-medium">Weight:</span>{" "}
+                      {infant.weight} kg
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <span className="font-medium">Height:</span>{" "}
+                      {infant.height} cm
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <Calendar size={14} className="inline" />
+                      <span>
+                        {infant.birthday.month}/{infant.birthday.day}/
+                        {infant.birthday.year}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Edit Button */}
+                <Button
+                  onClick={(e) => handleEditClick(e, infant)}
+                  className="bg-[#93acff] hover:bg-[#8993ff] text-white p-2 h-8 w-8"
+                  size="sm"
+                >
+                  <Edit size={16} />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
+
+      {/* Edit Infant Modal */}
+      <InfantModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        infant={selectedInfant}
+      />
 
       {/* Pagination and Items Per Page Controls */}
-      <div className="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        {/* Items per Page */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Items per page:</span>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border rounded-md p-1 text-sm"
-          >
-            {[10, 20, 30, 50].map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
+      {paginatedInfants.length > 0 && (
+        <div className="mt-6 bg-white p-3 rounded-lg border border-[#dbedff] flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Items per Page */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Items per page:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border rounded-md p-1 text-sm border-[#dbedff] focus:outline-none focus:ring-2 focus:ring-[#8993ff]"
+            >
+              {[10, 20, 30, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Pagination Buttons and Page Info */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className="text-sm">
-            Page {currentPage} of {totalPages} | Showing{" "}
-            {paginatedInfants.length} of {totalItems} infants
+          {/* Page Info */}
+          <span className="text-sm text-gray-600">
+            Showing {paginatedInfants.length} of {totalItems} infants | Page{" "}
+            {currentPage} of {totalPages || 1}
           </span>
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            disabled={currentPage === totalPages || totalItems === 0}
-          >
-            Next
-          </Button>
-        </div>
 
-        {/* Delete Selected Button */}
-        <div>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteSelected}
-            disabled={selectedInfantIds.length === 0}
-          >
-            {deleteMutation.isPending ? "Deleting..." : "Delete Selected"}
-          </Button>
+          {/* Pagination Buttons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="border-[#dbedff] hover:bg-[#f4faff] text-gray-700 p-2 h-9 w-9"
+              size="sm"
+            >
+              <ChevronLeft size={18} />
+            </Button>
+
+            {/* Page Number Buttons */}
+            <div className="flex items-center">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`mx-0.5 h-9 w-9 ${
+                      currentPage === pageNum
+                        ? "bg-[#8993ff] hover:bg-[#93acff] text-white"
+                        : "border-[#dbedff] hover:bg-[#f4faff] text-gray-700"
+                    }`}
+                    size="sm"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPages || totalItems === 0}
+              className="border-[#dbedff] hover:bg-[#f4faff] text-gray-700 p-2 h-9 w-9"
+              size="sm"
+            >
+              <ChevronRight size={18} />
+            </Button>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

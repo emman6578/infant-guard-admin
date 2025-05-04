@@ -15,6 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ParentList } from "./ParentList";
+
+// Color palette
+const COLORS = {
+  lightBg: "#f4faff",
+  mediumBg: "#dbedff",
+  accentLight: "#accbff",
+  accentMedium: "#93acff",
+  accentDark: "#8993ff",
+  text: "#333333", // Dark gray for text
+};
 
 // BaranggayFilter component
 interface BaranggayFilterProps {
@@ -29,13 +40,19 @@ const BaranggayFilter = ({
   onBaranggayChange,
 }: BaranggayFilterProps) => (
   <Select value={selectedBaranggay} onValueChange={onBaranggayChange}>
-    <SelectTrigger className="w-[180px]">
+    <SelectTrigger className="w-[180px] bg-white border-2 border-[#accbff] text-[#333333]">
       <SelectValue placeholder="Filter by Baranggay" />
     </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="all">All Baranggays</SelectItem>
+    <SelectContent className="bg-[#f4faff] border-[#8993ff]">
+      <SelectItem value="all" className="hover:bg-[#dbedff]">
+        All Baranggays
+      </SelectItem>
       {baranggays.map((baranggay) => (
-        <SelectItem key={baranggay} value={baranggay}>
+        <SelectItem
+          key={baranggay}
+          value={baranggay}
+          className="hover:bg-[#dbedff]"
+        >
           {baranggay}
         </SelectItem>
       ))}
@@ -56,13 +73,15 @@ const PurokFilter = ({
   onPurokChange,
 }: PurokFilterProps) => (
   <Select value={selectedPurok} onValueChange={onPurokChange}>
-    <SelectTrigger className="w-[180px]">
+    <SelectTrigger className="w-[180px] bg-white border-2 border-[#accbff] text-[#333333]">
       <SelectValue placeholder="Filter by Purok" />
     </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="all">All Puroks</SelectItem>
+    <SelectContent className="bg-[#f4faff] border-[#8993ff]">
+      <SelectItem value="all" className="hover:bg-[#dbedff]">
+        All Puroks
+      </SelectItem>
       {puroks.map((purok) => (
-        <SelectItem key={purok} value={purok}>
+        <SelectItem key={purok} value={purok} className="hover:bg-[#dbedff]">
           {purok}
         </SelectItem>
       ))}
@@ -132,8 +151,8 @@ const ParentManagement = () => {
   };
 
   // Filter parents based on name, baranggay and purok selections.
-  const filteredParents =
-    data?.data?.filter((parent: any) => {
+  const filteredParents = (
+    data?.data?.filter((parent: Parent) => {
       const matchesName = parent.fullname
         .toLowerCase()
         .startsWith(searchTerm.toLowerCase());
@@ -143,7 +162,27 @@ const ParentManagement = () => {
       const matchesPurok =
         selectedPurok === "all" || parent?.address?.purok === selectedPurok;
       return matchesName && matchesBaranggay && matchesPurok;
-    }) || [];
+    }) || []
+  ).sort((a, b) => {
+    // Helper to get surname (last word) and first name (remaining words)
+    const getSortableNames = (fullname: string) => {
+      const parts = fullname.trim().split(/\s+/);
+      return {
+        surname: parts[parts.length - 1] || "",
+        firstName: parts.slice(0, -1).join(" ") || parts[0] || "",
+      };
+    };
+
+    const aNames = getSortableNames(a.fullname);
+    const bNames = getSortableNames(b.fullname);
+
+    // Compare surnames first
+    const surnameCompare = aNames.surname.localeCompare(bNames.surname);
+    if (surnameCompare !== 0) return surnameCompare;
+
+    // If surnames match, compare first names
+    return aNames.firstName.localeCompare(bNames.firstName);
+  });
 
   const handleEdit = (parent: Parent) => {
     setEditableData((prev) => ({
@@ -231,29 +270,62 @@ const ParentManagement = () => {
     }));
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {(error as Error).message}</div>;
+  const handleCancel = (parentId: string) => {
+    setEditableData((prev) => {
+      const newState = { ...prev };
+      delete newState[parentId];
+      return newState;
+    });
+  };
+
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#f4faff]">
+        <div className="text-[#333333] text-xl font-semibold">
+          Loading parents data...
+        </div>
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#f4faff]">
+        <div className="text-red-600 text-xl font-semibold">
+          Error: {(error as Error).message}
+        </div>
+      </div>
+    );
 
   return (
-    <div className="grid grid-cols-[250px_1fr] grid-rows-[1fr_auto] min-h-screen">
+    <div className="grid grid-cols-[250px_1fr] grid-rows-[1fr_auto] min-h-screen bg-[#f4faff]">
       <Sidebar />
-      <main className="p-8 sm:p-20 font-[family-name:var(--font-geist-sans)] flex flex-col gap-8 bg-[#026167]">
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <h1 className="text-2xl font-bold text-cyan-50">Parent Management</h1>
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <BaranggayFilter
-            baranggays={getUniqueBaranggays(data?.data || [])}
-            selectedBaranggay={selectedBaranggay}
-            onBaranggayChange={setSelectedBaranggay}
-          />
-          <PurokFilter
-            puroks={getUniquePuroks(data?.data || [])}
-            selectedPurok={selectedPurok}
-            onPurokChange={setSelectedPurok}
-          />
+      <main className="p-6 sm:p-10 flex flex-col gap-6 bg-[#f4faff]">
+        <div className="bg-gradient-to-r from-[#8993ff] to-[#93acff] rounded-lg p-6 shadow-md">
+          <h1 className="text-2xl font-bold text-[#666666] mb-4">
+            Parent Management
+          </h1>
+
+          <div className="flex flex-wrap gap-4 bg-[#dbedff] p-4 rounded-md">
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+            <div className="flex flex-wrap gap-3">
+              <BaranggayFilter
+                baranggays={getUniqueBaranggays(data?.data || [])}
+                selectedBaranggay={selectedBaranggay}
+                onBaranggayChange={setSelectedBaranggay}
+              />
+
+              <PurokFilter
+                puroks={getUniquePuroks(data?.data || [])}
+                selectedPurok={selectedPurok}
+                onPurokChange={setSelectedPurok}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <ParentTable
+
+        <div className="bg-white rounded-lg shadow-md p-4 border-2 border-[#accbff]">
+          <ParentList
             filteredParents={filteredParents}
             editableData={editableData}
             onEdit={handleEdit}
@@ -263,12 +335,23 @@ const ParentManagement = () => {
             onAddressChange={handleAddressChange}
             isUpdating={updateMutation.isPending}
             isDeleting={deleteMutation.isPending}
+            onCancel={handleCancel}
           />
+
           {filteredParents.length === 0 && (
-            <div className="text-center py-4 text-black">
-              No parents found matching your search.
+            <div className="text-center py-12 text-[#333333] bg-[#f4faff] rounded-md border border-[#dbedff]">
+              <p className="font-semibold text-lg">
+                No parents found matching your search.
+              </p>
+              <p className="text-sm mt-2">
+                Try adjusting your search criteria or filters.
+              </p>
             </div>
           )}
+        </div>
+
+        <div className="mt-4 text-center text-sm text-[#333333]">
+          <p>Total Parents: {filteredParents.length}</p>
         </div>
       </main>
       <Footer />

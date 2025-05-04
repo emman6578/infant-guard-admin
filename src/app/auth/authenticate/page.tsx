@@ -68,7 +68,7 @@ const Authenticate = () => {
                 id="code"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="Enter 6-digit code"
+                placeholder="Enter 8-digit code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 disabled={loading}

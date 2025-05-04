@@ -16,73 +16,74 @@ const Sidebar = ({ unreadCount }: SidebarProps) => {
     router.push(path);
   };
 
-  // Add path aliases if needed (e.g. root path -> /home)
-  const isHomeActive = currentPath === "/" || currentPath === "/home";
+  const isActive = (path: string) =>
+    currentPath === path ||
+    (path === "/home" && (currentPath === "/" || currentPath === "/home"));
+
+  const buttonClasses = (path: string) =>
+    `px-4 py-3 rounded-lg transition-colors duration-200 text-left text-base font-semibold
+    ${
+      isActive(path)
+        ? "bg-[#7faaff] text-[#555555]" // Active: Darker blue bg, deeper blue text
+        : "text-[#3d3d3d] hover:bg-[#a8cfff]" // Inactive: Darker mid-blue text, deeper hover bg
+    }`;
 
   return (
-    <aside className="bg-[#ffbd5f] text-black p-3 h-full sticky top-0">
-      <div className="mb-20 flex items-center gap-3">
-        <p className="text-2xl font-bold">Administrator</p>
+    <aside className="bg-[#e0eaff] text-black p-5 h-full sticky top-0 w-64 shadow-lg">
+      <div className="mb-16">
+        <p className="text-2xl font-extrabold text-[#555555]">Administrator</p>
       </div>
-      <nav className="flex flex-col gap-2">
+
+      <nav className="flex flex-col gap-3">
         <button
           onClick={() => handleTabClick("/home")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            isHomeActive ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home")}
         >
           Home
         </button>
 
         <button
           onClick={() => handleTabClick("/home/parent")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/home/parent" ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home/parent")}
         >
           Parent Management
         </button>
 
         <button
           onClick={() => handleTabClick("/home/infant")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/home/infant" ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home/infant")}
         >
           Infant Management
         </button>
 
         <button
           onClick={() => handleTabClick("/home/vaccine")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/home/vaccine" ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home/vaccine")}
         >
-          Download Data
+          Reports
         </button>
 
         <button
           onClick={() => handleTabClick("/home/messages")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/home/messages" ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home/messages")}
         >
           Messages{" "}
-          <span className="bg-red-500 text-white text-sm rounded-full px-2 ml-2">
-            {unreadCount}
-          </span>
+          {unreadCount !== undefined && unreadCount > 0 && (
+            <span className="bg-red-600 text-white text-xs font-medium rounded-full px-2 py-0.5 ml-2">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         <button
           onClick={() => handleTabClick("/home/contact")}
-          className={`px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-200 text-left text-lg font-bold ${
-            currentPath === "/home/contact" ? "bg-gray-800 text-blue-400" : ""
-          }`}
+          className={buttonClasses("/home/contact")}
         >
           About Us
         </button>
       </nav>
-      <div className="mt-10 align-middle">
+
+      <div className="mt-20">
         <LogoutBtn />
       </div>
     </aside>

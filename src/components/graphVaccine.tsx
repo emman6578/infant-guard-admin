@@ -103,7 +103,7 @@ export default function VaccineGraph() {
   const individualData = processIndividualData();
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full">
       {/* Summary Chart Card */}
       <div className="bg-white shadow rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-4">

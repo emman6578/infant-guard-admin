@@ -43,7 +43,9 @@ export default function DashboardData({ data }: DashboardDataProps) {
 
       {/* Vaccination Summary */}
       <section className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Vaccination Summary</h2>
+        <h2 className="text-2xl font-bold mb-4 text-[#424242]">
+          Vaccination Summary
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.entries(vaccinationSummary).map(([dose, summary]) => (
             <div key={dose} className="p-4 bg-gray-50 rounded-lg">
@@ -69,8 +71,10 @@ export default function DashboardData({ data }: DashboardDataProps) {
       </section>
 
       {/* Recent Parents */}
-      <section className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">Recent Parents</h2>
+      <section className="bg-[#dbedff] shadow rounded-lg p-6">
+        <h2 className="text-2xl font-bold mb-4 text-[#424242]">
+          Recent Parents
+        </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead className="bg-gray-100">
@@ -115,7 +119,7 @@ export default function DashboardData({ data }: DashboardDataProps) {
 
       {/* Infants and Vaccination Schedules */}
       <section className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="text-2xl font-bold mb-4 text-[#424242]">
           Infants & Vaccination Schedules
         </h2>
         <div className="grid grid-cols-1 gap-6">

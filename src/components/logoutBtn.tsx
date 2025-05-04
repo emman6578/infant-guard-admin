@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContextProvider";
 export default function LogoutBtn() {
   const { updateAuthToken } = useAuth();
   const router = useRouter();
+
   const deleteToken = () => {
     return localStorage.removeItem("authToken");
   };
@@ -19,15 +20,11 @@ export default function LogoutBtn() {
   };
 
   return (
-    <div>
-      <Button
-        onClick={handlePress}
-        variant={"secondary"}
-        size={"lg"}
-        className="bg-[#23966d]"
-      >
-        Logout
-      </Button>
-    </div>
+    <Button
+      onClick={handlePress}
+      className="bg-[#cc7171] text-[#ffffff] hover:bg-[#dbedff] hover:text-[#f4faff] font-semibold border border-[#8993ff] px-6 py-2 rounded-lg transition duration-300 shadow-sm"
+    >
+      Logout
+    </Button>
   );
 }
