@@ -350,7 +350,7 @@ export default function Home() {
               </select>
 
               {/* Purok Filter Dropdown */}
-              <select
+              {/* <select
                 className="p-2 border rounded-lg w-full sm:w-auto focus:outline-none focus:ring-2"
                 style={{ backgroundColor: "#93acff", borderColor: "#8993ff" }}
                 value={filterPurok}
@@ -362,7 +362,7 @@ export default function Home() {
                     {value}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
           </div>
 

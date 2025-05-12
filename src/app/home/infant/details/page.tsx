@@ -190,8 +190,8 @@ export default function InfantDetails() {
 
         // Build the notification details
         const formattedDate = formatDate(scheduledDate);
-        const title = `Baby ${data?.data.fullname} his/her Vaccine Update: ${vaccineName}`;
-        const body = `${doseLabel} scheduled for ${formattedDate} is now marked as DONE.`;
+        const title = `Para kay ${data?.data.fullname} ang kanyang ${vaccineName}`;
+        const body = `${doseLabel} na naka schedule ${formattedDate} ay updated na`;
 
         // Send the notification
         await sendNotifyMutation.mutateAsync({
@@ -228,15 +228,15 @@ export default function InfantDetails() {
     try {
       await sendNotifyMutation.mutateAsync({
         infant_id: id!,
-        title: `Reminder for baby ${data?.data.fullname} his/her ${title}`,
-        body: `was scheduled for: ${body}`,
+        title: `Paalala kay baby, ${data?.data.fullname} ang kanyang ${title}`,
+        body: `ay scheduled: ${body}`,
         data: "Vaccine Reminder",
       });
 
       //store this notif 2
       updateMutation.mutate({
-        title: `Reminder for baby ${data?.data.fullname} his/her ${title}`,
-        body: `was scheduled for: ${body}`,
+        title: `Paalala kay baby, ${data?.data.fullname} ang kanyang ${title}`,
+        body: `ay scheduled: ${body}`,
         data: "Vaccine Reminder",
       });
     } catch (error) {
